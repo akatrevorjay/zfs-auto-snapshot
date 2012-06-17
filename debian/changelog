@@ -1,3 +1,11 @@
+zfs-auto-snapshot (1.0.8-0ubuntu2~1.gbp6191a3) UNRELEASED; urgency=low
+
+  ** SNAPSHOT build @6191a316e1ddbc4e761c712da6ba40c31383a21b **
+
+  * Hack to work around issues with recursive snapshot deletion by deleting them in order
+
+ -- Trevor Joynson (trevorj) <trevorj@locsol.net>  Sat, 16 Jun 2012 22:40:15 -0400
+
 zfs-auto-snapshot (1.0.8-0ubuntu1) unstable; urgency=low
 
   * Update the README file to be more descriptive.
