@@ -176,12 +176,31 @@ do_snapshots () # properties, flags, snapname, oldglob, [targets...]
 				KEEP=$(( $KEEP - 1 ))
 				if [ "$KEEP" -le '0' ]
 				then
-					if do_run "zfs destroy $FLAGS '$jj'" 
+					# This is a quick hack, this test will need to be more
+					# precise, perhaps a variable set in the caller instead of
+					# putting -r in $FLAGS ?
+					if [ "$FLAGS" = '-r' ]
 					then
-						DESTRUCTION_COUNT=$(( $DESTRUCTION_COUNT + 1 ))
+						# Due to ZoL issues with deletion of zvol snapshots
+						# recursively, delete snaps one-by-one in reverse order
+						jk=$(zfs list -t snapshot -o name -H -r "$ii" \
+							| sed -ne "/^$ii\(\|\/.\+\)@${jj#$ii@}\$/p" \
+							| sort )
+						# Reset FLAGS, see above notice
+						FLAGS=""
 					else
-						WARNING_COUNT=$(( $WARNING_COUNT + 1 ))
+						jk="$jj"
 					fi
+
+					for kk in $jk
+					do
+						if ! do_run "zfs destroy $FLAGS '$kk'"
+						then
+							WARNING_COUNT=$(( $WARNING_COUNT + 1 ))
+							break 2
+						fi
+					done
+					DESTRUCTION_COUNT=$(( $DESTRUCTION_COUNT + 1 ))
 				fi
 			fi
 		done
